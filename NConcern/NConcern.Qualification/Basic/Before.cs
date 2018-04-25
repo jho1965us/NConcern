@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
@@ -221,6 +222,53 @@ namespace NConcern.Qualification.Basic
                 Aspect.Release<Before.Interceptor.Parameterized>(_method);
                 Interception.Initialize();
                 _instance.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+            }
+        }
+
+        [TestMethod]
+        public void BasicBeforeManyArgumentsInstanceMethod()
+        {
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<ManyArguments>.Method(_ManyArguments => _ManyArguments.Instance(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
+                var _values = new[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+                var _manyArguments = new ManyArguments();
+                Interception.Initialize();
+                var _return = _manyArguments.Instance(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                Assert.IsTrue(_return.SequenceEqual(_values));
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor>(_method);
+                Interception.Initialize();
+                _return = _manyArguments.Instance(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                Assert.IsTrue(_return.SequenceEqual(_values));
+                Assert.AreEqual(Interception.Done, true);
+                Aspect.Release<Before.Interceptor>(_method);
+                Interception.Initialize();
+                _manyArguments.Instance(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                Assert.AreEqual(Interception.Done, false);
+            }
+        }
+
+        [TestMethod]
+        public void BasicBeforeManyArgumentsStaticMethod()
+        {
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<ManyArguments>.Method(_ManyArguments => ManyArguments.Static(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
+                var _values = new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+                Interception.Initialize();
+                var _return = ManyArguments.Static(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                Assert.IsTrue(_return.SequenceEqual(_values));
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor>(_method);
+                Interception.Initialize();
+                _return = ManyArguments.Static(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                Assert.IsTrue(_return.SequenceEqual(_values));
+                Assert.AreEqual(Interception.Done, true);
+                Aspect.Release<Before.Interceptor>(_method);
+                Interception.Initialize();
+                ManyArguments.Static(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
                 Assert.AreEqual(Interception.Done, false);
             }
         }
