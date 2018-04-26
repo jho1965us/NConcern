@@ -62,6 +62,8 @@
   <ItemGroup>
     <Compile Include="ManyArguments.cs" />
     <Compile Include="RefParameter.cs" />
+    <Compile Include="NoNeptuneMethod.cs" />
+    <Compile Include="NoNeptuneType.cs" />
     <Compile Include="Sealed.cs" />
     <Compile Include="Virtual.cs" />
     <Compile Include="Basic\Before.cs" />

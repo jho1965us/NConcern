@@ -327,5 +327,37 @@ namespace NConcern.Qualification.Basic
                 Assert.AreEqual(Interception.Done, false);
             }
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(System.NotSupportedException))]
+        public void BasicBeforeNoNeptuneTypeMethod()
+        {
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<NoNeptuneType>.Method(_NoNeptuneType => _NoNeptuneType.Method(Argument<int>.Value, Argument<int>.Value));
+                var _noNeptuneType = new NoNeptuneType();
+                Interception.Initialize();
+                _noNeptuneType.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor>(_method);
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(System.NotSupportedException))]
+        public void BasicBeforeNoNeptuneMethod()
+        {
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<NoNeptuneMethod>.Method(_NoNeptuneMethod => _NoNeptuneMethod.Method(Argument<int>.Value, Argument<int>.Value));
+                var _noNeptuneMethod = new NoNeptuneMethod();
+                Interception.Initialize();
+                _noNeptuneMethod.Method(2, 3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor>(_method);
+                Assert.Fail();
+            }
+        }
     }
 }
