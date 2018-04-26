@@ -15,6 +15,7 @@ namespace NConcern.Qualification
         static public bool Done;
         static public object Instance;
         static public object[] Arguments;
+        static public object[] MethodArguments;
         static public object Return;
         static public Exception Exception;
 
@@ -24,6 +25,7 @@ namespace NConcern.Qualification
             Interception.Done = false;
             Interception.Instance = null;
             Interception.Arguments = null;
+            Interception.MethodArguments = null;
             Interception.Return = null;
             Interception.Exception = null;
         }

@@ -139,31 +139,31 @@ namespace System.Reflection.Emit
                                 break;
                             case 3:
                                 body.Emit(OpCodes.Ldc_I4_3);
-                                body.Emit(OpCodes.Ldarg, _index);
+                                body.Emit(OpCodes.Ldarg, _index + 1);
                                 break;
                             case 4:
                                 body.Emit(OpCodes.Ldc_I4_4);
-                                body.Emit(OpCodes.Ldarg, _index);
+                                body.Emit(OpCodes.Ldarg, _index + 1);
                                 break;
                             case 5:
                                 body.Emit(OpCodes.Ldc_I4_5);
-                                body.Emit(OpCodes.Ldarg, _index);
+                                body.Emit(OpCodes.Ldarg, _index + 1);
                                 break;
                             case 6:
                                 body.Emit(OpCodes.Ldc_I4_6);
-                                body.Emit(OpCodes.Ldarg, _index);
+                                body.Emit(OpCodes.Ldarg, _index + 1);
                                 break;
                             case 7:
                                 body.Emit(OpCodes.Ldc_I4_7);
-                                body.Emit(OpCodes.Ldarg, _index);
+                                body.Emit(OpCodes.Ldarg, _index + 1);
                                 break;
                             case 8:
                                 body.Emit(OpCodes.Ldc_I4_8);
-                                body.Emit(OpCodes.Ldarg, _index);
+                                body.Emit(OpCodes.Ldarg, _index + 1);
                                 break;
                             default:
                                 body.Emit(OpCodes.Ldc_I4, _index);
-                                body.Emit(OpCodes.Ldarg, _index);
+                                body.Emit(OpCodes.Ldarg, _index + 1);
                                 break;
                         }
                         if (_parameter.IsValueType) { body.Emit(OpCodes.Box, _parameter); }
