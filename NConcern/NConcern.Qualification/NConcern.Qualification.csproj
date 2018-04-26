@@ -61,8 +61,11 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Dummy.cs" />
+    <Compile Include="GenericMethodInGenericType.cs" />
+    <Compile Include="GenericMethod.cs" />
     <Compile Include="ManyArguments.cs" />
     <Compile Include="RefParameter.cs" />
+    <Compile Include="TaggedGenericType.cs" />
     <Compile Include="GenericType.cs" />
     <Compile Include="NoNeptuneMethod.cs" />
     <Compile Include="NoNeptuneType.cs" />

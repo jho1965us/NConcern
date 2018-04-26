@@ -1,4 +1,5 @@
 ﻿using System;
+using CNeptune;
 
 namespace NConcern.Qualification
 {
@@ -30,6 +31,33 @@ namespace NConcern.Qualification
             Interception.Return = null;
             Interception.Exception = null;
             Interception.Value3 = 3;
+        }
+    }
+
+    [Neptune(false)] // might interfere with the test
+    static internal class Interception<TTag>
+    {
+        static private int m_Sequence;
+
+        static public int Sequence()
+        {
+            return Interception<TTag>.m_Sequence++;
+        }
+
+        static public bool Done;
+        static public object Instance;
+        static public object[] Arguments;
+        static public object Return;
+        static public Exception Exception;
+
+        static public void Initialize()
+        {
+            Interception<TTag>.m_Sequence = 0;
+            Interception<TTag>.Done = false;
+            Interception<TTag>.Instance = null;
+            Interception<TTag>.Arguments = null;
+            Interception<TTag>.Return = null;
+            Interception<TTag>.Exception = null;
         }
     }
 }
