@@ -18,6 +18,7 @@ namespace NConcern.Qualification
         static public object[] MethodArguments;
         static public object Return;
         static public Exception Exception;
+        static public int Value3;
 
         static public void Initialize()
         {
@@ -28,6 +29,7 @@ namespace NConcern.Qualification
             Interception.MethodArguments = null;
             Interception.Return = null;
             Interception.Exception = null;
+            Interception.Value3 = 3;
         }
     }
 }

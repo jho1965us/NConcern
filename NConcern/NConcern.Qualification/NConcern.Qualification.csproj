@@ -57,6 +57,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ManyArguments.cs" />
+    <Compile Include="RefParameter.cs" />
     <Compile Include="Sealed.cs" />
     <Compile Include="Virtual.cs" />
     <Compile Include="Basic\Before.cs" />

@@ -196,8 +196,8 @@ namespace System.Reflection
 
         static public Signature Signature(this MethodBase method)
         {
-            if (method.IsStatic) { return new Signature(method.GetParameters().Select(_Parameter => _Parameter.ParameterType)); }
-            return new Signature(method.DeclaringType, method.GetParameters().Select(_Parameter => _Parameter.ParameterType));
+            if (method.IsStatic) { return new Signature(method.GetParameters()); }
+            return new Signature(method.DeclaringType, method.GetParameters());
         }
 
         static public PropertyInfo Property(this MethodBase method)

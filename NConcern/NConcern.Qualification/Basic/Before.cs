@@ -227,6 +227,57 @@ namespace NConcern.Qualification.Basic
         }
 
         [TestMethod]
+        public void BasicBeforeRefParameterMethod()
+        {
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<RefParameter>.Method(_Overriden => _Overriden.Method(Argument<int>.Value, ref Argument<int>.Value));
+                var _instance = new RefParameter();
+                Interception.Initialize();
+                _instance.Method(2, ref Interception.Value3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor>(_method);
+                Interception.Initialize();
+                var _return = _instance.Method(2, ref Interception.Value3);
+                Assert.AreEqual(_return, 1);
+                Assert.AreEqual(Interception.Done, true);
+                Aspect.Release<Before.Interceptor>(_method);
+                Interception.Initialize();
+                _instance.Method(2, ref Interception.Value3);
+                Assert.AreEqual(Interception.Done, false);
+            }
+        }
+
+        [TestMethod]
+        public void BasicBeforeRefParameterMethodStateful()
+        {
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<RefParameter>.Method(_Overriden => _Overriden.Method(Argument<int>.Value, ref Argument<int>.Value));
+                var _instance = new RefParameter();
+                Interception.Initialize();
+                _instance.Method(2, ref Interception.Value3);
+                Assert.AreEqual(Interception.Value3, -3);
+                Assert.AreEqual(Interception.Done, false);
+                Aspect.Weave<Before.Interceptor.Parameterized>(_method);
+                Interception.Initialize();
+                var _return = _instance.Method(2, ref Interception.Value3);
+                Assert.AreEqual(Interception.Value3, -3);
+                Assert.AreEqual(_return, 1);
+                Assert.AreEqual(Interception.Done, true);
+                Assert.AreEqual(Interception.Instance, _instance);
+                Assert.AreEqual(Interception.Arguments.Length, 2);
+                Assert.AreEqual(Interception.Arguments[0], 2);
+                Assert.AreEqual(Interception.Arguments[1], 3);
+                Aspect.Release<Before.Interceptor.Parameterized>(_method);
+                Interception.Initialize();
+                _instance.Method(2, ref Interception.Value3);
+                Assert.AreEqual(Interception.Value3, -3);
+                Assert.AreEqual(Interception.Done, false);
+            }
+        }
+
+        [TestMethod]
         public void BasicBeforeManyArgumentsInstanceMethod()
         {
             lock (Interception.Handle)

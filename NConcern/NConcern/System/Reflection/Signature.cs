@@ -17,26 +17,21 @@ namespace System.Reflection
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Collection<Type> m_Signature;
         public readonly Type Instance;
-        public readonly Collection<Type> Parameters;
+        public readonly IList<ParameterInfo> Parameters;
         public readonly int Length;
 
-        public Signature(Type instance, IEnumerable<Type> parameters)
-            : this(instance, parameters.ToArray())
-        {
-        }
-
-        public Signature(Type instance, Type[] parameters)
+        public Signature(Type instance, ParameterInfo[] parameters)
         {
             if (instance == null)
             {
                 if (parameters == null)
                 {
                     this.m_Signature = new Collection<Type>();
-                    this.Parameters = this.m_Signature;
+                    this.Parameters = new ParameterInfo[0];
                     return;
                 }
-                this.m_Signature = new Collection<Type>(parameters);
-                this.Parameters = this.m_Signature;
+                this.m_Signature = new Collection<Type>(parameters.Select(parameter => parameter.ParameterType));
+                this.Parameters = parameters;
                 this.Length = parameters.Length;
                 return;
             }
@@ -44,84 +39,36 @@ namespace System.Reflection
             {
                 this.Instance = instance;
                 this.m_Signature = new Collection<Type>(new Type[] { instance });
-                this.Parameters = new Collection<Type>();
+                this.Parameters = parameters;
                 this.Length = 1;
                 return;
             }
             this.Instance = instance;
             var _signature = new Type[this.Length = parameters.Length + 1];
             _signature[0] = instance;
-            for (var _index = 0; _index < parameters.Length; _index++) { _signature[_index + 1] = parameters[_index]; }
+            for (var _index = 0; _index < parameters.Length; _index++) { _signature[_index + 1] = parameters[_index].ParameterType; }
             this.m_Signature = new Collection<Type>(_signature);
-            this.Parameters = new Collection<Type>(_signature.Skip(1));
-        }
-
-        public Signature(Type instance, Collection<Type> parameters)
-        {
-            if (instance == null)
-            {
-                if (parameters == null)
-                {
-                    this.m_Signature = new Collection<Type>();
-                    this.Parameters = this.m_Signature;
-                    return;
-                }
-                this.m_Signature = parameters;
-                this.Parameters = parameters;
-                this.Length = parameters.Count;
-                return;
-            }
-            if(parameters == null)
-            {
-                this.Instance = instance;
-                this.m_Signature = new Collection<Type>(new Type[] { instance });
-                this.Parameters = new Collection<Type>();
-                this.Length = 1;
-                return;
-            }
-            var _signature = new Type[this.Length = parameters.Count + 1];
-            _signature[0] = this.Instance = instance;
-            for (var _index = 0; _index < parameters.Count; _index++) { _signature[_index + 1] = parameters[_index]; }
-            this.m_Signature = new Collection<Type>(_signature);
-            this.Parameters = new Collection<Type>(_signature.Skip(1));
-        }
-
-        public Signature(IEnumerable<Type> parameters)
-            : this(parameters.ToArray())
-        {
-        }
-
-        public Signature(Type[] parameters)
-        {
-            if (parameters == null)
-            {
-                this.m_Signature = new Collection<Type>();
-                this.Parameters = this.m_Signature;
-                return;
-            }
-            this.m_Signature = new Collection<Type>(parameters);
-            this.Parameters = this.m_Signature;
-            this.Length = parameters.Length;
-        }
-
-        public Signature(Collection<Type> parameters)
-        {
-            if (parameters == null)
-            {
-                this.m_Signature = new Collection<Type>();
-                this.Parameters = this.m_Signature;
-                return;
-            }
-            this.m_Signature = parameters;
             this.Parameters = parameters;
-            this.Length = parameters.Count;
+        }
+
+        public Signature(ParameterInfo[] parameters)
+        {
+            if (parameters == null)
+            {
+                this.m_Signature = new Collection<Type>();
+                this.Parameters = parameters;
+                return;
+            }
+            this.m_Signature = new Collection<Type>(parameters.Select(parameter => parameter.ParameterType));
+            this.Parameters = parameters;
+            this.Length = parameters.Length;
         }
 
         public Signature(Type instance)
         {
             this.Instance = instance;
             this.m_Signature = new Collection<Type>(new Type[] { instance });
-            this.Parameters = new Collection<Type>();
+            this.Parameters = new ParameterInfo[0];
             this.Length = 1;
         }
 
