@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -11,21 +12,34 @@ namespace NConcern
     {
         static private partial class Directory
         {
-            static private readonly Dictionary<MethodBase, Aspect.Directory.Entry> m_Dictionary = new Dictionary<MethodBase, Entry>();
+            static private readonly ConcurrentDictionary<MethodBase, Aspect.Directory.Entry> m_Dictionary = new ConcurrentDictionary<MethodBase, Entry>();
 
-            static private Aspect.Directory.Entry Obtain(MethodBase method)
+            static private Aspect.Directory.Entry Obtain(MethodBase method, int neptuneMethodIndex = NeptuneMethodIndexUninitialized)
             {
                 var _method = method;
                 if (_method.DeclaringType != _method.ReflectedType)
                 {
                     if (_method is MethodInfo) { _method = (_method as MethodInfo).GetBaseDefinition(); }
+                    // todo Jens '_Method is ConstructorInfo' seems always false implied by 'FindMembers(MemberTypes.Method, ...)', also no need to find constructors as 'if (_method.DeclaringType != _method.ReflectedType)' seems never true for constructors
+                    // todo Jens '_Method is MethodInfo' seems always true implied by 'FindMembers(MemberTypes.Method, ...)'
                     _method = _method.DeclaringType.FindMembers(MemberTypes.Method, BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly, (_Method, _Criteria) => _Method is ConstructorInfo || _Method is MethodInfo && (_Method as MethodInfo).GetBaseDefinition() == _method, null).Single() as MethodBase;
                 }
-                Aspect.Directory.Entry _entry;
-                if (Aspect.Directory.m_Dictionary.TryGetValue(method, out _entry)) { return _entry; }
-                _entry = new Aspect.Directory.Entry(_method.DeclaringType, _method, new Aspect.Activity(_method.DeclaringType, _method));
-                Aspect.Directory.m_Dictionary.Add(_method, _entry);
+                var _entry = ObtainRaw(_method, neptuneMethodIndex);
+                if (_entry.NeedInitialization)
+                {
+                    _entry.Initialize();
+                }
                 return _entry;
+            }
+
+            static private Aspect.Directory.Entry ObtainRaw(MethodBase method, int neptuneMethodIndex)
+            {
+                return m_Dictionary.GetOrAdd(method, _Method => new Aspect.Directory.Entry(_Method.DeclaringType, _Method, new Aspect.Activity(_Method.DeclaringType, _Method), neptuneMethodIndex));
+            }
+
+            static public bool ContainsKey(MethodBase method)
+            {
+                return Aspect.Directory.m_Dictionary.ContainsKey(method);
             }
 
             static public IEnumerable<MethodBase> Index()
@@ -45,10 +59,15 @@ namespace NConcern
                 return _entry.Select(_Aspect => _Aspect.GetType()).ToArray();
             }
 
-            static public void Add<T>(MethodBase method)
+            static public void Register(MethodBase method, int neptuneMethodIndex = NeptuneMethodIndexUninitialized)
+            {
+                Aspect.Directory.Obtain(method);
+            }
+
+            static public void Add<T>(MethodBase method, int neptuneMethodIndex = NeptuneMethodIndexUninitialized)
                 where T : class, IAspect, new()
             {
-                Aspect.Directory.Obtain(method).Add(Singleton<T>.Value);
+                Aspect.Directory.Obtain(method, neptuneMethodIndex).Add(Singleton<T>.Value);
             }
 
             static public void Remove(MethodBase method)

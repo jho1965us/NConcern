@@ -129,9 +129,9 @@ namespace System.Reflection
             }
         }
 
-        static internal byte[] GetBodyAsByteArray(this MethodBase method)
+        static internal byte[] GetBodyAsByteArray(this MethodBase method, bool needSpecialPrepare)
         {
-            method.Prepare();
+            method.Prepare(needSpecialPrepare);
             if (method is DynamicMethod) { return (method as DynamicMethod).GetILGenerator().GetILAsByteArray(); }
             var _body = method.GetMethodBody();
             return _body == null ? null : _body.GetILAsByteArray();
@@ -147,9 +147,9 @@ namespace System.Reflection
             return _buffer;
         }
 
-        static public Collection<Instruction> Body(this MethodBase method)
+        static public Collection<Instruction> Body(this MethodBase method, bool needSpecialPrepare)
         {
-            return new Collection<Instruction>(method.Body(method.GetBodyAsByteArray()));
+            return new Collection<Instruction>(method.Body(method.GetBodyAsByteArray(needSpecialPrepare)));
         }
 
         static public bool Attributed<T>(this MethodBase method)
@@ -175,9 +175,30 @@ namespace System.Reflection
             return method is DynamicMethod ? __MethodBase.m_Handle(method as DynamicMethod) : method.MethodHandle;
         }
 
-        static public void Prepare(this MethodBase method)
+        static public void Prepare(this MethodBase method, bool needSpecialPrepare = false)
         {
-            RuntimeHelpers.PrepareMethod(method.Handle());
+            // test not good enough (too broad)
+            //if (method.DeclaringType != null && method.DeclaringType.IsGenericType)
+            // todo Jens maybe better but still not good enough
+            //if (needSpecialPrepare)
+            //{
+            //    // e.g.: if method has not been called yet
+            //    // Jens maybe also need to test if method type parameter unused but how can our code see that?
+            //    var _runtimeTypeHandles = method.DeclaringType.GetGenericArguments().Select(type => type.TypeHandle).ToArray();
+            //    RuntimeHelpers.PrepareMethod(method.Handle(), _runtimeTypeHandles);
+            //    return;
+            //}
+            try
+            {
+                RuntimeHelpers.PrepareMethod(method.Handle());
+            }
+            catch (ArgumentException e) //when (e.Message == "The given generic instantiation was invalid.")
+            {
+                // we know what to do just not when to do it (supplying TypeHandles when not needed also course an exception)
+                // see also https://stackoverflow.com/questions/31754418/runtimehelpers-preparemethod-not-working-when-called-with-funcstring-created-i
+                var _runtimeTypeHandles = method.DeclaringType.GetGenericArguments().Select(type => type.TypeHandle).ToArray();
+                RuntimeHelpers.PrepareMethod(method.Handle(), _runtimeTypeHandles);
+            }
         }
 
         static public string Declaration(this MethodBase method)
