@@ -359,5 +359,45 @@ namespace NConcern.Qualification.Basic
                 Assert.Fail();
             }
         }
+
+        [TestMethod]
+        public void BasicBeforeMethodInConstructedGenericType()
+        {
+            lock (Interception.Handle)
+            {
+                var _method = Metadata<GenericType<int>>.Method(_GenericType => _GenericType.Method(Argument<int>.Value, Argument<int>.Value));
+                BasicBeforeMethodInGenericType<int>(_method, true);
+                BasicBeforeMethodInGenericType<double>(_method, false);
+            }
+        }
+
+        [TestMethod]
+        public void BasicBeforeMethodInGenericTypeDefinition()
+        {
+            lock (Interception.Handle)
+            {
+                var _method = typeof(GenericType<>).GetMethod(nameof(GenericType<Dummy>.Method));
+                BasicBeforeMethodInGenericType<int>(_method, true);
+                BasicBeforeMethodInGenericType<double>(_method, true);
+            }
+        }
+
+        private static void BasicBeforeMethodInGenericType<T>(MethodInfo _method, bool expectInterception)
+        {
+            var _genericType = new GenericType<T>();
+            Interception.Initialize();
+            var _3 = (T)Convert.ChangeType(3, typeof(T));
+            _genericType.Method(2, _3);
+            Assert.AreEqual(Interception.Done, false, typeof(T).Name);
+            Aspect.Weave<Before.Interceptor>(_method);
+            Interception.Initialize();
+            var _return = _genericType.Method(2, _3);
+            Assert.AreEqual(_return, expectInterception ? 1 : 0, typeof(T).Name);
+            Assert.AreEqual(Interception.Done, expectInterception, typeof(T).Name);
+            Aspect.Release<Before.Interceptor>(_method);
+            Interception.Initialize();
+            _genericType.Method(2, _3);
+            Assert.AreEqual(Interception.Done, false, typeof(T).Name);
+        }
     }
 }
